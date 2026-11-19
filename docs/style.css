@@ -83,3 +83,17 @@ main:has(.hero[hidden]) { padding-top: 1.15rem; }
   .hero { grid-template-columns: 1fr; }
   .hero-art { display: none; }
 }
+
+.resolution-status {
+  display: inline-block;
+  margin-top: .45rem;
+  padding: .15rem .6rem;
+  border-radius: .4rem;
+  background: #f2e6ce;
+  color: #563a21;
+  font-weight: 650;
+}
+.resolution-status[data-state="resolved"] {
+  background: #e0efdf;
+  color: #234f3a;
+}

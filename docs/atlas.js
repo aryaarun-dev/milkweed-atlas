@@ -139,7 +139,15 @@ function render() {
     details.textContent = [report.plants && 'Plants: ' + report.plants, report.soil && 'Soil: ' + report.soil,
       report.sunlight, sighting, report.care, report.urgency && 'Urgency: ' + report.urgency]
       .filter(Boolean).join(' · ');
-    item.append(heading, date, details);
+    item.append(heading, date);
+    if (['Open', 'In progress', 'Resolved'].includes(report.resolutionStatus)) {
+      const badge = document.createElement('span');
+      badge.className = 'resolution-status';
+      badge.dataset.state = report.resolutionStatus.toLowerCase();
+      badge.textContent = 'Status: ' + report.resolutionStatus;
+      item.append(badge);
+    }
+    item.append(details);
     return item;
   });
   document.querySelector('#observations').replaceChildren(...entries);
