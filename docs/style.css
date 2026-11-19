@@ -50,3 +50,36 @@ select { max-width: 100%; min-height: 2.6rem; font: inherit; color: inherit; bac
 #observations time { color: var(--muted); display: block; margin-top: .25rem; }
 .report-panel { background: #e9efe2; border-radius: 1rem; padding: 1.25rem 1.55rem; }
 footer { color: var(--muted); padding-block: 2rem; }
+
+.hero {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 2rem;
+  margin: 1.6rem 0 2.5rem;
+  padding: clamp(1.5rem, 6vw, 4.5rem);
+  overflow: hidden;
+  border-radius: 1.25rem;
+  background: #173b2d;
+  color: #faf4dc;
+}
+.hero h1 { color: inherit; }
+.hero p { color: #e8ebd7; margin-block: 1.1rem; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+.hero .button { background: #f6c86f; color: #202b20; border-color: #f6c86f; }
+.hero .secondary { background: transparent; color: #faf4dc; border-color: #afa994; }
+.hero-art { display: grid; justify-items: center; align-items: center; min-height: 18rem; position: relative; }
+.hero-art span { grid-area: 1 / 1; width: min(18vw, 12rem); aspect-ratio: 1; border-radius: 76% 10% 76% 22%; background: #e8b25e; border: 2px solid #f4d49a; transform: translate(-28%, -25%) rotate(12deg); }
+.hero-art span:nth-child(2) { background: #90a779; transform: translate(27%, 23%) rotate(192deg); }
+.hero-art span:nth-child(3) { width: min(13vw, 8.5rem); background: #bc6c49; transform: translate(56%, -62%) rotate(75deg); }
+.garden-directory { margin-bottom: 2.25rem; scroll-margin-top: 1rem; }
+.directory-heading { margin-bottom: 1rem; }
+#garden-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 235px), 1fr)); gap: .7rem; list-style: none; padding: 0; }
+#garden-cards a { display: block; height: 100%; background: var(--card); padding: 1rem; border: 1px solid var(--line); border-radius: .75rem; text-decoration: none; }
+#garden-cards a:hover { border-color: var(--green); }
+#garden-cards p { font-size: .9rem; }
+main:has(.hero[hidden]) { padding-top: 1.15rem; }
+@media (max-width: 620px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-art { display: none; }
+}

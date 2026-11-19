@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Explore verified milkweed garden observations and share what you see.">
+  <meta name="description" content="Explore school milkweed gardens and share what you see.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Milkweed Atlas · Monarch Guardian</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -16,25 +16,33 @@
   <header class="top">
     <div class="wrap bar">
       <a class="brand" href="./">Monarch Guardian</a>
-      <nav aria-label="Primary"><a href="#explore">Explore gardens</a><a class="button report-link" hidden>Report an observation</a></nav>
+      <nav aria-label="Primary"><a href="./#gardens">Gardens</a><a class="button report-link" hidden>Report an observation</a></nav>
     </div>
   </header>
   <main class="wrap">
     <section class="hero" aria-labelledby="title">
-      <h1 id="title">Milkweed Atlas</h1>
-      <p>See what’s happening in our school milkweed gardens. Share a sighting or let a garden coordinator know when the plants need care.</p>
+      <div class="hero-copy">
+        <h1 id="title">Milkweed<br>Atlas</h1>
+        <p>Follow monarch sightings and garden conditions across our school communities.</p>
+        <div class="hero-actions"><a class="button" href="#gardens">View gardens</a><a class="button report-link secondary" hidden>Report a sighting</a></div>
+      </div>
+      <div class="hero-art" aria-hidden="true"><span></span><span></span><span></span></div>
+    </section>
+    <section class="garden-directory" id="gardens" aria-labelledby="gardens-heading">
+      <div class="directory-heading"><h2 id="gardens-heading">School gardens</h2><p>Choose a school to see its observation history.</p></div>
+      <ul id="garden-cards"></ul>
     </section>
     <section id="explore" class="panel" aria-labelledby="explore-heading">
       <div class="panel-heading">
-        <div><h2 id="explore-heading">Explore gardens</h2><p id="feed-status" role="status">Loading verified observations…</p></div>
+        <div><h2 id="explore-heading">Explore gardens</h2><p id="feed-status" role="status">Loading garden observations…</p></div>
         <button type="button" id="refresh" hidden>Refresh map</button>
       </div>
       <div id="map" aria-label="Map of school gardens"></div>
-      <div class="legend" aria-label="Map legend"><span><i class="dot healthy"></i> Healthy plants</span><span><i class="dot attention"></i> Needs attention</span><span><i class="dot neutral"></i> No verified plant status</span></div>
+      <div class="legend" aria-label="Map legend"><span><i class="dot healthy"></i> Healthy plants</span><span><i class="dot attention"></i> Needs attention</span><span><i class="dot neutral"></i> No reported plant status</span></div>
       <div class="selector"><label for="garden">Garden</label><select id="garden"><option value="">All gardens</option></select></div>
     </section>
     <section id="history" class="panel history" aria-labelledby="history-heading">
-      <div class="panel-heading"><div><h2 id="history-heading">Verified observations</h2><p id="history-note">Reports appear here after a reviewer approves them.</p></div><button id="share" type="button" hidden>Copy garden link</button></div>
+      <div class="panel-heading"><div><h2 id="history-heading">Garden observations</h2><p id="history-note">Observations come from the school reporting form.</p></div><button id="share" type="button" hidden>Copy garden link</button></div>
       <p id="share-status" role="status"></p>
       <ul id="observations"></ul>
     </section>
