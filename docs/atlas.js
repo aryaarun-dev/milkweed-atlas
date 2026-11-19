@@ -7,18 +7,23 @@ const share = document.querySelector('#share');
 const shareStatus = document.querySelector('#share-status');
 const feed = {
   gardens: [
-    { id: 'MG-001', name: 'TMSA Apex', lat: 35.7327, lng: -78.8503, approximate: true },
-    { id: 'MG-002', name: 'TMSA Triangle High School' },
-    { id: 'MG-003', name: 'TMSA Triangle Cary' },
-    { id: 'MG-004', name: 'TMSA Triangle Durham' },
-    { id: 'MG-005', name: 'TMSA Triad Greensboro Elementary' },
-    { id: 'MG-006', name: 'TMSA Triad Greensboro Secondary' },
-    { id: 'MG-007', name: 'TMSA Triad McLeansville' },
-    { id: 'MG-008', name: 'TMSA Charlotte Elementary' },
-    { id: 'MG-009', name: 'TMSA Charlotte Secondary' },
-    { id: 'MG-010', name: 'TMSA Concord Elementary' }
+    { id: 'MG-001', name: 'TMSA Apex', lat: 35.719, lng: -78.904, approximate: true },
+    { id: 'MG-002', name: 'TMSA Triangle High School', lat: 35.717, lng: -78.907, approximate: true },
+    { id: 'MG-003', name: 'TMSA Triangle Cary', lat: 35.766, lng: -78.78, approximate: true },
+    { id: 'MG-004', name: 'TMSA Triangle Durham', lat: 35.903, lng: -78.897, approximate: true },
+    { id: 'MG-005', name: 'TMSA Triad Greensboro Elementary', lat: 36.034, lng: -79.779, approximate: true },
+    { id: 'MG-006', name: 'TMSA Triad Greensboro Secondary', lat: 36.026, lng: -79.75, approximate: true },
+    { id: 'MG-007', name: 'TMSA Triad McLeansville', lat: 36.083, lng: -79.65, approximate: true },
+    { id: 'MG-008', name: 'TMSA Charlotte Elementary', lat: 35.331, lng: -80.786, approximate: true },
+    { id: 'MG-009', name: 'TMSA Charlotte Secondary', lat: 35.377, lng: -80.712, approximate: true },
+    { id: 'MG-010', name: 'TMSA Concord Elementary', lat: 35.4, lng: -80.69, approximate: true }
   ],
-  reports: []
+  // Privacy-filtered snapshot from Form Responses 1, 2026-11-18.
+  reports: [{
+    gardenId: 'MG-001', date: '2026-11-18', sunlight: 'Enough sunlight',
+    sighting: 'Butterflies', soil: 'Dry', plants: 'Healthy',
+    care: 'No care needed', urgency: 'Low urgency'
+  }]
 };
 const requested = new URL(location.href).searchParams.get('garden');
 let selected = requested || '';
@@ -58,6 +63,7 @@ function drawMap() {
 
   markers.clearLayers();
   const points = [];
+  const placed = [];
   for (const garden of feed.gardens) {
     if (!Number.isFinite(garden.lat) || !Number.isFinite(garden.lng)) continue;
     const point = [garden.lat, garden.lng];
@@ -67,7 +73,7 @@ function drawMap() {
       latest?.plants === 'Needs attention' ? '#a94917' : '#5e6c62';
 
     const marker = L.marker(point, {
-      title: garden.name, alt: garden.name,
+      title: garden.name, alt: garden.name, zIndexOffset: garden.id === selected ? 100 : 0,
       icon: L.divIcon({
         className: '',
         html: '<span style="display:block;width:18px;height:18px;background:' + color +
@@ -80,15 +86,27 @@ function drawMap() {
     link.href = gardenUrl(garden.id);
     link.textContent = garden.name;
     popup.append(link, document.createElement('br'), latest ? latest.date : 'No observation yet');
-    if (garden.approximate) popup.append(document.createElement('br'), 'Approximate location');
+    if (garden.approximate) popup.append(document.createElement('br'), 'Approximate campus area');
     marker.bindPopup(popup);
+    placed.push({ marker, point });
   }
-  const focus = feed.gardens.find(garden => garden.id === selected);
-  if (focus && Number.isFinite(focus.lat) && Number.isFinite(focus.lng)) {
-    map.setView([focus.lat, focus.lng], 13);
-  } else if (points.length) {
+  if (points.length && !map.atlasBoundsSet) {
     map.fitBounds(points, { padding: [30, 30], maxZoom: 10 });
+    map.atlasBoundsSet = true;
   }
+  const spreadPins = () => {
+    const pixels = [];
+    for (const { marker, point } of placed) {
+      const position = map.latLngToLayerPoint(point);
+      while (pixels.some(previous => previous.distanceTo(position) < 22)) position.x += 22;
+      pixels.push(position);
+      marker.setLatLng(map.layerPointToLatLng(position));
+    }
+  };
+  if (map.atlasSpreadPins) map.off('zoomend', map.atlasSpreadPins);
+  map.atlasSpreadPins = spreadPins;
+  map.on('zoomend', spreadPins);
+  spreadPins();
 }
 
 function render() {
@@ -96,11 +114,11 @@ function render() {
   const reports = garden ? feed.reports.filter(report => report.gardenId === garden.id) : feed.reports;
   const names = new Map(feed.gardens.map(item => [item.id, item.name]));
   document.querySelector('#history-heading').textContent = garden ? garden.name + ' observations' : 'Garden observations';
-  const historyNote = loaded ?
-    (reports.length ? reports.length + (reports.length === 1 ? ' submitted observation' : ' submitted observations') : 'No observation yets yet.') :
-    'Observation history is unavailable until the spreadsheet feed is connected.';
-  document.querySelector('#history-note').textContent = garden && !Number.isFinite(garden.lat) ?
-    historyNote + ' Map location pending.' : historyNote;
+  const historyNote = reports.length ?
+    reports.length + (reports.length === 1 ? ' submitted observation.' : ' submitted observations.') :
+    (loaded ? 'No observations submitted yet.' : 'No observations in the saved snapshot for this school.');
+  document.querySelector('#history-note').textContent = loaded ? historyNote :
+    historyNote + ' Snapshot from Nov 18, 2026. Live updates are pending.';
 
   const entries = reports.map(report => {
     const item = document.createElement('li');
@@ -139,7 +157,7 @@ function render() {
     const title = document.createElement('h3');
     title.textContent = item.name;
     const subtitle = document.createElement('p');
-    subtitle.textContent = loaded && matching.length ?
+    subtitle.textContent = matching.length ?
       matching.length + (matching.length === 1 ? ' observation' : ' observations') : 'View garden';
     link.append(title, subtitle);
     li.append(link);
@@ -153,7 +171,7 @@ function render() {
 
 function loadFeed() {
   if (!window.ATLAS_FEED_URL) {
-    feedStatus.textContent = 'Connect the spreadsheet feed to see submitted observations.';
+    feedStatus.textContent = 'Showing saved observations. Live spreadsheet updates are pending.';
     return;
   }
   refresh.hidden = false;
@@ -180,10 +198,14 @@ function loadFeed() {
     refresh.disabled = false;
     if (!payload?.ok || !Array.isArray(payload.gardens) || !Array.isArray(payload.reports)) {
       feedStatus.textContent = loaded ? 'Could not refresh. Showing the last loaded observations.' :
-        'Could not load garden observations. Try refreshing the map.';
+        'Could not load the live feed. Showing saved observations.';
       return;
     }
-    Object.assign(feed, { gardens: payload.gardens, reports: payload.reports });
+    feed.gardens = feed.gardens.map(garden => {
+      const liveGarden = payload.gardens.find(item => item.id === garden.id);
+      return liveGarden ? { ...garden, ...liveGarden } : garden;
+    });
+    feed.reports = payload.reports;
     loaded = true;
     feedStatus.textContent = selected && !feed.gardens.some(garden => garden.id === selected) ?
       'Garden link unavailable. Showing all gardens.' : 'Marker colors reflect the latest reported plant condition.';
