@@ -5,6 +5,9 @@ const refresh = document.querySelector('#refresh');
 const feedStatus = document.querySelector('#feed-status');
 const share = document.querySelector('#share');
 const shareStatus = document.querySelector('#share-status');
+const historyPanel = document.querySelector('#history');
+const mapPanel = document.querySelector('#explore');
+const reportingPanel = document.querySelector('#report');
 const feed = {
   gardens: [
     { id: 'MG-001', name: 'TMSA Apex', lat: 35.719, lng: -78.904, approximate: true },
@@ -113,7 +116,10 @@ function render() {
   const garden = feed.gardens.find(item => item.id === selected);
   const reports = garden ? feed.reports.filter(report => report.gardenId === garden.id) : feed.reports;
   const names = new Map(feed.gardens.map(item => [item.id, item.name]));
-  document.querySelector('#history-heading').textContent = garden ? garden.name + ' observations' : 'Garden observations';
+  const heading = historyPanel.querySelector('#history-heading');
+  heading.textContent = garden ? garden.name + ' garden observations' : 'Garden observations';
+  const destination = garden ? mapPanel : reportingPanel;
+  if (historyPanel.nextElementSibling !== destination) destination.before(historyPanel);
   const historyNote = reports.length ?
     reports.length + (reports.length === 1 ? ' submitted observation.' : ' submitted observations.') :
     (loaded ? 'No observations submitted yet.' : 'No observations in the saved snapshot for this school.');
@@ -226,7 +232,7 @@ gardenSelect.addEventListener('change', () => {
   selected = gardenSelect.value;
   history.replaceState(null, '', gardenUrl(selected));
   render();
-  if (selected) document.querySelector('#history').scrollIntoView();
+  if (selected) historyPanel.scrollIntoView();
 });
 refresh.addEventListener('click', loadFeed);
 share.addEventListener('click', async () => {
