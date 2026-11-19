@@ -57,7 +57,7 @@ function normalize_(value) {
   return String(value ?? '').trim().toLowerCase().replace(/\s+/g, ' ').replace(/’/g, "'");
 }
 
-function project_(row, timezone) {
+function project_(row, timezone, resolutionColumn) {
   const location = normalize_(row[1]);
   const garden = GARDENS.find(item => [item.name, ...(item.aliases || [])]
     .some(name => normalize_(name) === location));
@@ -74,6 +74,9 @@ function project_(row, timezone) {
   if (['Butterflies', 'Caterpillars', 'Chrysalis'].includes(report.sighting) && /^\d{1,3}$/.test(count)) {
     report.count = Number(count);
   }
+  const statuses = { open: 'Open', 'in progress': 'In progress', resolved: 'Resolved' };
+  const status = normalize_(row[resolutionColumn]);
+  if (Object.prototype.hasOwnProperty.call(statuses, status)) report.resolutionStatus = statuses[status];
   return report;
 }
 
@@ -84,10 +87,13 @@ function doGet(event) {
     const source = responseSheet_(book);
     const count = source.getLastRow() - 1;
     const timezone = book.getSpreadsheetTimeZone();
+    const width = source.getLastColumn();
+    const resolutionColumn = source.getRange(1, 1, 1, width).getDisplayValues()[0]
+      .findIndex((header, index) => index >= HEADERS.length && normalize_(header) === 'resolution status');
     const reports = [];
     if (count) {
-      for (const row of source.getRange(2, 1, count, HEADERS.length).getValues()) {
-        const report = project_(row, timezone);
+      for (const row of source.getRange(2, 1, count, Math.max(HEADERS.length, resolutionColumn + 1)).getValues()) {
+        const report = project_(row, timezone, resolutionColumn);
         if (report) reports.push(report);
       }
     }
