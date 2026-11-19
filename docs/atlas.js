@@ -175,7 +175,7 @@ function render() {
   drawMap();
 }
 
-function loadFeed() {
+async function loadFeed() {
   if (!window.ATLAS_FEED_URL) {
     feedStatus.textContent = 'Showing saved observations. Live spreadsheet updates are pending.';
     return;
@@ -192,20 +192,15 @@ function loadFeed() {
     feedStatus.textContent = 'The spreadsheet feed needs a valid Apps Script deployment URL.';
     return;
   }
-  const request = String(Date.now());
-  endpoint.searchParams.set('format', 'jsonp');
-  endpoint.searchParams.set('request', request);
-  const script = document.createElement('script');
-
-  function finish(payload) {
-    clearTimeout(timeout);
-    delete window.milkweedAtlasFeed;
-    script.remove();
-    refresh.disabled = false;
+  endpoint.searchParams.set('request', String(Date.now()));
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12000);
+  try {
+    const response = await fetch(endpoint, { credentials: 'omit', signal: controller.signal });
+    if (!response.ok) throw new Error('Feed request failed');
+    const payload = await response.json();
     if (!payload?.ok || !Array.isArray(payload.gardens) || !Array.isArray(payload.reports)) {
-      feedStatus.textContent = loaded ? 'Could not refresh. Showing the last loaded observations.' :
-        'Could not load the live feed. Showing saved observations.';
-      return;
+      throw new Error('Unexpected feed response');
     }
     feed.gardens = feed.gardens.map(garden => {
       const liveGarden = payload.gardens.find(item => item.id === garden.id);
@@ -213,19 +208,16 @@ function loadFeed() {
     });
     feed.reports = payload.reports;
     loaded = true;
-    feedStatus.textContent = selected && !feed.gardens.some(garden => garden.id === selected) ?
-      'Garden link unavailable. Showing all gardens.' : 'Marker colors reflect the latest reported plant condition.';
+    feedStatus.textContent = 'Marker colors reflect the latest reported plant condition.';
     buildSelector();
     render();
+  } catch {
+    feedStatus.textContent = loaded ? 'Could not refresh. Showing the last loaded observations.' :
+      'Could not load the live feed. Showing saved observations.';
+  } finally {
+    clearTimeout(timeout);
+    refresh.disabled = false;
   }
-
-  const timeout = setTimeout(finish, 12000);
-  window.milkweedAtlasFeed = (responseRequest, payload) => {
-    if (responseRequest === request) finish(payload);
-  };
-  script.src = endpoint.href;
-  script.onerror = () => finish();
-  document.head.append(script);
 }
 
 gardenSelect.addEventListener('change', () => {
