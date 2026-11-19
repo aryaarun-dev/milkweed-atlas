@@ -245,4 +245,4 @@ loadFeed();
 // Refresh from the spreadsheet while this page is visible.
 setInterval(() => {
   if (!document.hidden && !refresh.disabled && window.ATLAS_FEED_URL) loadFeed();
-}, 60000);
+}, 15000);
