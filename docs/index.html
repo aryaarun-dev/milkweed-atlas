@@ -7,7 +7,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Milkweed Atlas · Monarch Guardian</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script defer src="config.js?v=3"></script>
   <script defer src="atlas.js?v=5"></script>
@@ -48,7 +48,13 @@
     </section>
     <section id="report" class="report-panel" aria-labelledby="report-heading">
       <div><h2 id="report-heading">Report an observation</h2><p id="report-help">Choose the school in the Google Form. Leave names and contact details out of your observation.</p></div>
-      <a class="button report-link" hidden>Open reporting form</a>
+      <div class="report-actions">
+        <a class="button report-link" hidden>Open reporting form</a>
+        <figure class="report-qr">
+          <img src="observation-form-qr.png" width="144" height="144" alt="QR code for the Monarch Guardians observation form">
+          <figcaption>Scan to report</figcaption>
+        </figure>
+      </div>
     </section>
   </main>
   <footer class="wrap">Monarch Guardian · Milkweed Atlas</footer>

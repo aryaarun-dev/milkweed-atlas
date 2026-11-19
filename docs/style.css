@@ -97,3 +97,9 @@ main:has(.hero[hidden]) { padding-top: 1.15rem; }
   background: #e0efdf;
   color: #234f3a;
 }
+
+.report-panel > div:first-child { flex: 1 1 18rem; }
+.report-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.report-qr { margin: 0; text-align: center; }
+.report-qr img { display: block; background: white; border-radius: .35rem; }
+.report-qr figcaption { margin-top: .25rem; color: var(--muted); }
